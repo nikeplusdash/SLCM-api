@@ -26,29 +26,29 @@ with requests.Session() as s:
         login_payload.update(getDetails(soup))
         r = s.post(LOGIN_URL, data=login_payload)
         if len(r.history) == 1:
-            status = 23
+            status = 200
         else:
-            status = 1479
+            status = 401
     except requests.exceptions.ConnectionError:
-        status = 25
+        status = 404
     except requests.exceptions.ReadTimeout:
-        status = 0
+        status = 400
     except Exception:
-        status = -1
+        status = 418
     finally:
-        if status == 23:
+        if status == 200:
             print('\n + + + + + + + + Connection Successful and Logged in + + + + + + + + \n')
-        elif status == 1479:
-            print("\n + + + + + + + + Connection Successful and failed to Log in + + + + + + + + \n")
-        elif status == 25:
+        elif status == 401:
+            print("\n + + + + + + + + Invalid Credentials + + + + + + + + \n")
+        elif status == 404:
             print("\n + + + + + + + + Connection not established + + + + + + + + \n")
-        elif status == 0:
+        elif status == 400:
             print('\n + + + + + + + + Connection Timed out + + + + + + + + \n')
-        elif status == -1:
-            print("\n + + + + + + + + Some error occured + + + + + + + + \n")
+        elif status == 418:
+            print("\n + + + + + + + + I am a teapot + + + + + + + + \n")
     s.close()
 
-if status == 23:
+if status == 200:
     soup = BeautifulSoup(s.post('https://slcm.manipal.edu/StudentProfile.aspx').text,'html.parser')
     reg_no,app_no,name,a_year,branch,doj,bday,gsex,pno,eno,email = [i['value'] for i in soup.select('input.form-control')[:11]]
     print("Hi {0},\nYou are using the SLCM-API.\n".format(name))
