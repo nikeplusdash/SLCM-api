@@ -20,7 +20,6 @@ login_payload.update({'txtUserid': u,'txtpassword': p})
 
 with requests.Session() as s:
     status = None
-    s = requests.Session()
     try:
         soup = BeautifulSoup(s.get(LOGIN_URL).text,'html.parser')
         login_payload.update(getDetails(soup))
