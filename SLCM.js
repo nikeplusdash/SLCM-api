@@ -59,21 +59,20 @@ GET(LOGIN_URL)
         login_payload.__EVENTVALIDATION = $('#__EVENTVALIDATION',html)['0'].attribs.value
         login_payload.__VIEWSTATEGENERATOR = $('#__VIEWSTATEGENERATOR',html)['0'].attribs.value
         login_payload.__VIEWSTATE = $('#__VIEWSTATE',html)['0'].attribs.value
-        console.log(login_payload)
     })
-    // .then(()=>{
-    //     urlEncoded(login_payload)
-    //         .then(data=>POST(LOGIN_URL,data))
-    //         .then((data)=>{
-    //             console.log(data.body._readableState.buffer.head.data.toString('utf-8'))
-    //         })
-    //         .catch((err)=>{
-    //             console.log(err)
-    //         })
-    // })
+    .then(()=>{
+        urlEncoded(login_payload)
+            .then(data=>POST(LOGIN_URL,data))
+            .then((data)=>{
+                console.log(data.body._readableState.buffer.head.data.toString('utf-8'))
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+    })
     .catch((err)=>{
         console.log(err)
     })
-POST(LOGIN_URL,urlEncoded(login_payload))
-    .then(data=>data.body._readableState.buffer.head.data.toString('utf-8'))
-    .then(data=>console.log(data))
+// POST(LOGIN_URL,(urlEncoded(login_payload).then(data=>data)))
+//     .then(data=>data.body._readableState.buffer.head.data.toString('utf-8'))
+//     .then(data=>console.log(data))
