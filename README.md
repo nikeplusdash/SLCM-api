@@ -18,5 +18,5 @@ This makes a login request to https://slcm.manipal.edu and fetches basic user da
 ## API Deployed at https://slcm-app.herokuapp.com/
 
 - use /weblogin to access other routes on browser
-- make a post request to login to fetch details from other routes
+- make a post request to /login to access other routes
 - docs available at https://slcm-app.herokuapp.com/docs
