@@ -1,5 +1,4 @@
 import requests
-import uvicorn
 from bs4 import BeautifulSoup
 from fastapi import FastAPI,status,HTTPException,Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -161,6 +160,3 @@ async def logout(auth=Depends(auth_required)):
     s.get('https://slcm.manipal.edu/loginForm.aspx',timeout=10)
     user.session = False
     return HTTPException(status_code=status.HTTP_200_OK,detail='Logged out successfully')
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
