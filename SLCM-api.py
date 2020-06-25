@@ -86,28 +86,28 @@ async def weblogin(auth = Depends(web_login)):
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
 
-@app.post('/login',tags=['SLCM-api'],summary='Creates a login session for app')
-async def login(username:str,password:str):
-    try:
-        # username,password = credentials.username,credentials.password
-        login_payload.update({'txtUserid': username,'txtpassword': password})
-        soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
-        login_payload.update(getDetails(soup))
-        r = s.post(LOGIN_URL, data=login_payload,timeout=10)
-        if len(r.history) == 1:
-            user.session = True
-            return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
-        else:
-            raise requests.exceptions.RequestException
-    except requests.exceptions.ReadTimeout:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Connection Timed out')
-    except requests.exceptions.RequestException:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
-    except Exception as e:
-        raise HTTPException(status_code=418,detail='Unknown Error Occurred ({})'.format(e))
+# @app.post('/login',tags=['SLCM-api'],summary='Creates a login session for app')
+# async def login(username:str,password:str):
+#     try:
+#         # username,password = credentials.username,credentials.password
+#         login_payload.update({'txtUserid': username,'txtpassword': password})
+#         soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
+#         login_payload.update(getDetails(soup))
+#         r = s.post(LOGIN_URL, data=login_payload,timeout=10)
+#         if len(r.history) == 1:
+#             user.session = True
+#             return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
+#         else:
+#             raise requests.exceptions.RequestException
+#     except requests.exceptions.ReadTimeout:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Connection Timed out')
+#     except requests.exceptions.RequestException:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
+#     except Exception as e:
+#         raise HTTPException(status_code=418,detail='Unknown Error Occurred ({})'.format(e))
 
 @app.get('/attendance',tags=['SLCM-api'],summary='Returns attendance object')
-async def attendance(auth=Depends(auth_required)):
+async def attendance(auth=Depends(web_login)):
     soup = BeautifulSoup(s.post('https://slcm.manipal.edu/Academics.aspx',timeout=10).text,'html.parser')
     attend = soup.select('#tblAttendancePercentage')[0].tbody.find_all('tr')
     segregate = [[j.contents[0] for j in i.find_all('td')[1:-1]] for i in attend]
@@ -124,7 +124,7 @@ async def attendance(auth=Depends(auth_required)):
     return attendance
 
 @app.get('/academics',tags=['SLCM-api'],summary='Returns academic object')
-async def academics(auth=Depends(auth_required)):
+async def academics(auth=Depends(web_login)):
     soup = BeautifulSoup(s.post('https://slcm.manipal.edu/Academics.aspx',timeout=10).text,'html.parser')
     attend = soup.select('#tblAttendancePercentage')[0].tbody.find_all('tr')
     segregate = [[j.contents[0] for j in i.find_all('td')[1:-1]] for i in attend]
@@ -150,7 +150,7 @@ async def academics(auth=Depends(auth_required)):
 
 
 @app.get('/verify',response_model=Verify,tags=['SLCM-api'],summary='Used for verification',description='This will verify the user and return only necessary data as response. This can be used for verifying new users')
-async def verify(auth = Depends(auth_required)):
+async def verify(auth = Depends(web_login)):
     soup = BeautifulSoup(s.post('https://slcm.manipal.edu/StudentProfile.aspx',timeout=10).text,'html.parser')
     data = [i['value'] for i in soup.select('input.form-control')[:11]]
     return {'message': 'success','body': {'reg_no':data[0],'app_no':data[1],'name':data[2],'acad_year':data[3],'branch':data[4],'date_of_join':data[5],'birthday':data[6],'sex':data[7],'phone_no':data[8],'email':data[10]}}
