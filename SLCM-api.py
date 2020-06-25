@@ -39,14 +39,14 @@ security = HTTPBasic()
 app = FastAPI(title='SLCM-api',description='Helps retrieval of data from https://slcm.manipal.edu',redoc_url=None,openapi_tags=tags_metadata)
 user = False
 
-def auth_required():
+async def auth_required():
     global user
     if user is True:
         return True
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Unauthorized access')
 
-def web_login(credentials: HTTPBasicCredentials = Depends(security)):
+async def web_login(credentials: HTTPBasicCredentials = Depends(security)):
     global user
     try:
         if user is True:
