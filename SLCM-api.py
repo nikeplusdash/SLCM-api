@@ -34,22 +34,23 @@ class Verify(BaseModel):
     message: str
     body: UserData
 
-class User:
-    session = False
-
 s =  requests.Session()
 security = HTTPBasic()
 app = FastAPI(title='SLCM-api',description='Helps retrieval of data from https://slcm.manipal.edu',redoc_url=None,openapi_tags=tags_metadata)
-user = User()
+user = False
 
 def auth_required():
-    if user.session is True:
+    global user
+    if user is True:
         return True
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Unauthorized access')
 
 def web_login(credentials: HTTPBasicCredentials = Depends(security)):
+    global user
     try:
+        if user is True:
+            return True
         username,password = credentials.username,credentials.password
         login_payload.update({'txtUserid': username,'txtpassword': password})
         soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
@@ -79,8 +80,9 @@ async def root():
 
 @app.get('/login',tags=['SLCM-api'],summary='Creates a login session for app')
 async def login(auth = Depends(web_login)):
+    global user
     if auth is True:
-        user.session = True
+        user = True
         return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
@@ -156,6 +158,7 @@ async def verify(auth = Depends(auth_required)):
 
 @app.get('/logout',tags=['SLCM-api'],summary='Closes current logged in session')
 async def logout(auth=Depends(auth_required)):
+    global user
     s.get('https://slcm.manipal.edu/loginForm.aspx',timeout=10)
-    user.session = False
+    user = False
     return HTTPException(status_code=status.HTTP_200_OK,detail='Logged out successfully')
