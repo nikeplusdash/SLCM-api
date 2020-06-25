@@ -46,7 +46,7 @@ def auth_required():
     if user.session is True:
         return True
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Session logged out')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Unauthorized access')
 
 def web_login(credentials: HTTPBasicCredentials = Depends(security)):
     try:
@@ -70,16 +70,15 @@ def web_login(credentials: HTTPBasicCredentials = Depends(security)):
 async def root():
     return {
         '[GET] /': 'Landing Page',
-        '[POST] /login': 'to login',
-        '[GET] /WebLogin': 'to Web login',
+        '[GET] /login': 'to reate a login session',
         '[GET] /attendance': 'returns attendance object',
         '[GET] /academics': 'returns academics object',
         '[GET] /verify': 'returns verification of the ',
         '[GET] /logout': 'end current session'
     }
 
-@app.get('/weblogin',tags=['SLCM-api'],summary='Creates a Web login session for app')
-async def weblogin(auth = Depends(web_login)):
+@app.get('/login',tags=['SLCM-api'],summary='Creates a login session for app')
+async def login(auth = Depends(web_login)):
     if auth is True:
         user.session = True
         return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
