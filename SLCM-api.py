@@ -70,7 +70,7 @@ def web_login(credentials: HTTPBasicCredentials = Depends(security)):
 async def root():
     return {
         '[GET] /': 'Landing Page',
-        '[GET] /login': 'to reate a login session',
+        '[GET] /login': 'to create a login session',
         '[GET] /attendance': 'returns attendance object',
         '[GET] /academics': 'returns academics object',
         '[GET] /verify': 'returns verification of the ',
