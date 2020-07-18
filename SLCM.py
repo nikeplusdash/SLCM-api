@@ -8,6 +8,7 @@ login_payload = {
     'txtpassword': '',
     'btnLogin': 'Sign%20in',
 }
+TIMEOUT = 30
 
 #   Create a user.txt file containing username and password
 #   in following format:
@@ -22,7 +23,7 @@ s =  requests.Session()
 status = None
 try:
     # Logging In
-    soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
+    soup = BeautifulSoup(s.get(LOGIN_URL,timeout=TIMEOUT).text,'html.parser')
     login_payload.update(getDetails(soup))
     r = s.post(LOGIN_URL, data=login_payload)
     if len(r.history) == 1:
@@ -32,12 +33,12 @@ try:
 
     if status == 200:
         # Basic Details
-        soup = BeautifulSoup(s.post('https://slcm.manipal.edu/StudentProfile.aspx',timeout=10).text,'html.parser')
+        soup = BeautifulSoup(s.post('https://slcm.manipal.edu/StudentProfile.aspx',timeout=TIMEOUT).text,'html.parser')
         reg_no,app_no,name,a_year,branch,doj,bday,gsex,pno,eno,email = [i['value'] for i in soup.select('input.form-control')[:11]]
         print("Hi {0},\nYou are using the SLCM-API.\n".format(name))
 
         # Attendance Details
-        soup = BeautifulSoup(s.post('https://slcm.manipal.edu/Academics.aspx',timeout=10).text,'html.parser')
+        soup = BeautifulSoup(s.post('https://slcm.manipal.edu/Academics.aspx',timeout=TIMEOUT).text,'html.parser')
         attend = soup.select('#tblAttendancePercentage')[0].tbody.find_all('tr')
         segregate = [[j.contents[0] for j in i.find_all('td')[1:-1]] for i in attend]
         attendance = list()
