@@ -4,13 +4,16 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI,status,HTTPException,Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
+import pytesseract
+from PIL import Image
 
 LOGIN_URL = 'https://slcm.manipal.edu/'
-getDetails = lambda soup: {'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
+getDetails = lambda soup: {'txtCaptcha': pytesseract.image_to_string(Image.open(s.get(LOGIN_URL + soup.select('#imgCaptcha')[0]['src'], stream=True).raw)).strip(),'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
 login_payload = {
     'txtUserid': '',
     'txtpassword': '',
     'btnLogin': 'Sign%20in',
+    'txtCaptcha': ''
 }
 tags_metadata = [
     {
