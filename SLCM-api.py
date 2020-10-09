@@ -1,15 +1,19 @@
 import requests
+import uvicorn
 from bs4 import BeautifulSoup
 from fastapi import FastAPI,status,HTTPException,Depends
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
+import pytesseract
+from PIL import Image
 
 LOGIN_URL = 'https://slcm.manipal.edu/'
-getDetails = lambda soup: {'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
+getDetails = lambda soup: {'txtCaptcha': pytesseract.image_to_string(Image.open(s.get(LOGIN_URL + soup.select('#imgCaptcha')[0]['src'], stream=True).raw)).strip(),'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
 login_payload = {
     'txtUserid': '',
     'txtpassword': '',
     'btnLogin': 'Sign%20in',
+    'txtCaptcha': ''
 }
 tags_metadata = [
     {
@@ -34,23 +38,22 @@ class Verify(BaseModel):
     message: str
     body: UserData
 
+class User:
+    session = False
+
 s =  requests.Session()
 security = HTTPBasic()
 app = FastAPI(title='SLCM-api',description='Helps retrieval of data from https://slcm.manipal.edu',redoc_url=None,openapi_tags=tags_metadata)
-user = False
+user = User()
 
-async def auth_required():
-    global user
-    if user is True:
+def auth_required():
+    if user.session is True:
         return True
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Unauthorized access')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Session logged out')
 
-async def web_login(credentials: HTTPBasicCredentials = Depends(security)):
-    global user
+def web_login(credentials: HTTPBasicCredentials = Depends(security)):
     try:
-        if user is True:
-            return True
         username,password = credentials.username,credentials.password
         login_payload.update({'txtUserid': username,'txtpassword': password})
         soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
@@ -71,41 +74,41 @@ async def web_login(credentials: HTTPBasicCredentials = Depends(security)):
 async def root():
     return {
         '[GET] /': 'Landing Page',
-        '[GET] /login': 'to create a login session',
+        '[POST] /login': 'to login',
+        '[GET] /WebLogin': 'to Web login',
         '[GET] /attendance': 'returns attendance object',
         '[GET] /academics': 'returns academics object',
         '[GET] /verify': 'returns verification of the ',
         '[GET] /logout': 'end current session'
     }
 
-@app.get('/login',tags=['SLCM-api'],summary='Creates a login session for app')
-async def login(auth = Depends(web_login)):
-    global user
+@app.get('/weblogin',tags=['SLCM-api'],summary='Creates a Web login session for app')
+async def weblogin(auth = Depends(web_login)):
     if auth is True:
-        user = True
+        user.session = True
         return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
 
-# @app.post('/login',tags=['SLCM-api'],summary='Creates a login session for app')
-# async def login(username:str,password:str):
-#     try:
-#         # username,password = credentials.username,credentials.password
-#         login_payload.update({'txtUserid': username,'txtpassword': password})
-#         soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
-#         login_payload.update(getDetails(soup))
-#         r = s.post(LOGIN_URL, data=login_payload,timeout=10)
-#         if len(r.history) == 1:
-#             user.session = True
-#             return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
-#         else:
-#             raise requests.exceptions.RequestException
-#     except requests.exceptions.ReadTimeout:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Connection Timed out')
-#     except requests.exceptions.RequestException:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
-#     except Exception as e:
-#         raise HTTPException(status_code=418,detail='Unknown Error Occurred ({})'.format(e))
+@app.post('/login',tags=['SLCM-api'],summary='Creates a login session for app')
+async def login(username:str,password:str):
+    try:
+        # username,password = credentials.username,credentials.password
+        login_payload.update({'txtUserid': username,'txtpassword': password})
+        soup = BeautifulSoup(s.get(LOGIN_URL,timeout=10).text,'html.parser')
+        login_payload.update(getDetails(soup))
+        r = s.post(LOGIN_URL, data=login_payload,timeout=10)
+        if len(r.history) == 1:
+            user.session = True
+            return HTTPException(status_code=status.HTTP_200_OK,detail='Logged In successfully')
+        else:
+            raise requests.exceptions.RequestException
+    except requests.exceptions.ReadTimeout:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail='Connection Timed out')
+    except requests.exceptions.RequestException:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Incorrect email or password",headers={"WWW-Authenticate": "Basic"})
+    except Exception as e:
+        raise HTTPException(status_code=418,detail='Unknown Error Occurred ({})'.format(e))
 
 @app.get('/attendance',tags=['SLCM-api'],summary='Returns attendance object')
 async def attendance(auth=Depends(auth_required)):
@@ -160,5 +163,5 @@ async def verify(auth = Depends(auth_required)):
 async def logout(auth=Depends(auth_required)):
     global user
     s.get('https://slcm.manipal.edu/loginForm.aspx',timeout=10)
-    user = False
+    user.session = False
     return HTTPException(status_code=status.HTTP_200_OK,detail='Logged out successfully')

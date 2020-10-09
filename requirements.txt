@@ -2,3 +2,5 @@ uvicorn
 fastapi[all]
 bs4
 requests
+Pillow
+pytesseract
