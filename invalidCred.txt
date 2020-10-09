@@ -1,0 +1,28 @@
+1|#||4|1945|updatePanel|updpnl|
+                <div id="pnlSignIn">
+	
+                    <div class="login_form">
+                        <p class="m-0 p-5">Sign in to your account</p>
+                        <div class="p-20">
+                            <div class="form-group mt-35 mb-20">
+                                <input name="txtUserid" type="text" value="180911202" maxlength="30" id="txtUserid" class="form-control" autocomplet="off" placeholder="Username" />
+                            </div>
+                            <div class="form-group">
+                                <input name="txtpassword" type="password" maxlength="30" id="txtpassword" class="form-control" autocomplet="off" placeholder="Password" />
+                                <img id="imgCaptcha" src="GenerateCaptcha.aspx?637378508580169333" style="border-width:0px;" />
+                                <input name="txtCaptcha" type="text" value="ImWSSA" maxlength="30" id="txtCaptcha" class="form-control" autocomplet="off" placeholder="Verify Above Code" />
+                                <a id="hrpConfirmation" class="forgetpassword mt-5" href="javascript:__doPostBack(&#39;hrpConfirmation&#39;,&#39;&#39;)">Forgot Password</a>
+                                <span id="labelerror" style="color:Red;font-size:Small;">System doesn't recognize user id or password</span>
+                            </div>
+                            <div class="form-group text-c">
+                                <span id="lblHRUserId"></span>
+                                <input type="submit" name="btnLogin" value="Sign in" id="btnLogin" class="btn btn-primary" />
+                                <input type="submit" name="txtRefreshCaptcha" value="Refresh Captcha" id="txtRefreshCaptcha" class="btn btn-success" />
+                            </div>
+                        </div>
+                    </div>
+                
+</div>
+
+                
+            |0|hiddenField|__EVENTTARGET||0|hiddenField|__EVENTARGUMENT||272|hiddenField|__VIEWSTATE|/wEPDwULLTEwNjc2OTMzMzEPZBYCAgMPZBYCAgMPZBYCZg9kFgQCAQ9kFgQCBQ8PFgIeCEltYWdlVXJsBSdHZW5lcmF0ZUNhcHRjaGEuYXNweD82MzczNzg1MDg1ODAxNjkzMzNkZAILDw8WAh4EVGV4dAUsU3lzdGVtIGRvZXNuJ3QgcmVjb2duaXplIHVzZXIgaWQgb3IgcGFzc3dvcmRkZAIDDw8WAh4HVmlzaWJsZWhkZGQICmNCF9xVR98gHUKRKwfxGjokbg==|8|hiddenField|__VIEWSTATEGENERATOR|6ED0046F|204|hiddenField|__EVENTVALIDATION|/wEdAAgwl5XYKbFvcGGfm0vdc53FdR78oILfrSzgm87C/a1IYZxpWckI3qdmfEJVCu2f5cGZf5MUp2golT/J9ICuDcwjCZbGJXbEzuosssstDQ73AKKeKEbp39eHc9mbdvkCgxB1RG6Y67qugE8XEGiC0bR3gcV6u3YyFUMOCJk99OqIyciAetnhJ+McARh3x/Y3lhByTd/J|0|asyncPostBackControlIDs|||0|postBackControlIDs|||14|updatePanelIDs||tupdpnl,updpnl|0|childUpdatePanelIDs|||13|panelsToRefreshIDs||updpnl,updpnl|2|asyncPostBackTimeout||90|16|formAction||./loginForm.aspx|7|pageTitle||MU SLcM|

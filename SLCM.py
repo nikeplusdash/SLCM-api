@@ -1,12 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+import pytesseract
+from PIL import Image
 
 LOGIN_URL = 'https://slcm.manipal.edu/'
-getDetails = lambda soup: {'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
+getDetails = lambda soup: {'txtCaptcha': pytesseract.image_to_string(Image.open(s.get(LOGIN_URL + soup.select('#imgCaptcha')[0]['src'], stream=True).raw)).strip(),'__EVENTVALIDATION': soup.select('#__EVENTVALIDATION')[0]['value'],'__VIEWSTATEGENERATOR': soup.select('#__VIEWSTATEGENERATOR')[0]['value'],'__VIEWSTATE': soup.select('#__VIEWSTATE')[0]['value']}
 login_payload = {
     'txtUserid': '',
     'txtpassword': '',
     'btnLogin': 'Sign%20in',
+    'txtCaptcha': ''
 }
 TIMEOUT = 30
 
@@ -18,7 +21,7 @@ TIMEOUT = 30
 f = open('user.txt','r')
 u,p = f.read().strip().split(' ')
 login_payload.update({'txtUserid': u,'txtpassword': p})
-
+pytesseract.pytesseract.tesseract_cmd = r'D:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 s =  requests.Session()
 status = None
 try:
