@@ -120,7 +120,7 @@ msgpack==0.6.1
 multipledispatch==0.6.0
 mysql-connector-python==8.0.21
 navigator-updater==0.2.1
-nbconvert==5.5.0
+nbconvert==6.3.0
 nbformat==4.4.0
 netmiko==3.2.0
 networkx==2.3
